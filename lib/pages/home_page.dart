@@ -1,58 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gastosapp/db/db_admin.dart';
 import 'package:flutter_gastosapp/widgets/register_modal.dart';
 
 class HomePage extends StatefulWidget {
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-Widget busquedaWidget(){
-  return TextField(
-    decoration: InputDecoration(
-      hintText: "Buscar por titulo",
-      hintStyle: TextStyle(color: Colors.black.withOpacity(0.4),
-      fontSize: 14,
-      ),
-      filled: true,
-      fillColor: Colors.black.withOpacity(0.05),
-      contentPadding: EdgeInsets.all(16),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide.none,
-        borderRadius: BorderRadius.circular(16)
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide.none,
-        borderRadius: BorderRadius.circular(16)
-      ),
-    ),
-  );
-}
-
-showRegisterModel(){
-  showModalBottomSheet(
-    backgroundColor: Colors.transparent,
-    context: context, 
-    builder: (BuildContext context){
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 24,horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(34),
-          topRight: Radius.circular(34)
+  Widget busquedaWidget() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: "Buscar por título",
+          hintStyle: TextStyle(
+            color: Colors.black.withOpacity(0.4),
+            fontSize: 14,
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.05),
+          contentPadding: EdgeInsets.all(16),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
-      child: RegisterModal(),
     );
-  });
-}
+  }
+
+  showRegisterModal() {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          // width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(34),
+              topRight: Radius.circular(34),
+            ),
+          ),
+          child: RegisterModal(),
+        );
+      },
+    );
+  }
+
+  DBAdmin dbAdmin = DBAdmin();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            dbAdmin.insertarGasto();
+            dbAdmin.obtenerGastos();
+          },
+        ),
         body: Stack(
           children: [
             Column(
@@ -60,7 +74,8 @@ showRegisterModel(){
               children: [
                 InkWell(
                   onTap: () {
-                    showRegisterModel();
+                    // showRegisterModal();
+                    dbAdmin.checkDatabase();
                   },
                   child: Container(
                     color: Colors.black,
@@ -68,7 +83,6 @@ showRegisterModel(){
                     width: double.infinity,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Icon(
                           Icons.add,
@@ -132,7 +146,7 @@ showRegisterModel(){
                 ),
                 SizedBox(
                   height: 75,
-                )
+                ),
               ],
             ),
           ],
