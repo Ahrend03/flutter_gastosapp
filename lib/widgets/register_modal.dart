@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gastosapp/db/db_admin.dart';
+import 'package:flutter_gastosapp/models/gasto_model.dart';
+import 'package:flutter_gastosapp/utils/data_general.dart';
 import 'package:flutter_gastosapp/widgets/field_modal_widget.dart';
+import 'package:flutter_gastosapp/widgets/item_type_widget.dart';
 
 class RegisterModal extends StatefulWidget {
   @override
@@ -10,40 +14,139 @@ class _RegisterModalState extends State<RegisterModal> {
   TextEditingController _productController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
   TextEditingController _typeController = TextEditingController();
-
-  _builBottonAdd(){
+  TextEditingController _dateController = TextEditingController();
+  String typeSelected = "Alimentos";
+  _buildButtonAdd() {
     return SizedBox(
       width: double.infinity,
-      height: 50,
-      child: 
-      ElevatedButton(onPressed: (){},
-       child: Text("Añadir",style: TextStyle(color: Colors.white),),
-       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+      height: 40,
+      child: ElevatedButton(
+        onPressed: () {
+
+          GastoModel gasto = GastoModel(title: _productController.text,
+           price: double.parse(_priceController.text),
+            datetime: _dateController.text,
+             type: _typeController.text);
+
+         // Map<String, dynamic> gastoMap = {
+        //  "title": _productController.text,
+        //    "price": _priceController.text,
+         //   "datetime": _dateController.text,
+        //    "type": typeSelected,
+        //  };
+          DBAdmin().insertarGasto(gasto).then((value) {
+            if (value > 0) {
+              //SE HA INSERTADO CORRECTAMENTE
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    backgroundColor: Colors.cyan,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    content: Text("Se ha registrado correctamente")),
+              );
+              Navigator.pop(context);
+            }
+          });
+        },
+        child: Text("Añadir"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
-       ),
-       ),
-      );
+      ),
+    );
+  }
+
+  showDateTimePicker() async {
+    DateTime? datePicker = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2030),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+            data: ThemeData.light().copyWith(
+              dialogTheme: DialogTheme(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              colorScheme: ColorScheme.light(primary: Colors.black),
+            ),
+            child: child!);
+      },
+    );
+    _dateController.text = datePicker.toString();
+    // if (datePicker != null) {
+    //   // final DateFormat
+    // }
+    print(_dateController.text);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          "Registra el gasto",
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(34),
+          topRight: Radius.circular(34),
         ),
-        SizedBox(
-          height: 16,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Registra el gasto",
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            FieldModalWidget(
+                hint: "Ingresa el título", controller: _productController),
+            FieldModalWidget(
+                hint: "Ingresa el monto",
+                controller: _priceController,
+                isNumberKeryboard: true),
+            FieldModalWidget(
+              hint: "Selecciona una fecha",
+              controller: _dateController,
+              isDatePicker: true,
+              function: () {
+                // print("ES UNA FECHA");
+                showDateTimePicker();
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: types
+                    .map(
+                      (e) => ItemTypeWidget(
+                        data: e,
+                        isSelected: e["name"] == typeSelected,
+                        tap: () {
+                          typeSelected = e["name"];
+                          setState(() {});
+                          print(typeSelected);
+                        },
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+            _buildButtonAdd(),
+          ],
         ),
-        FielModalWidget(hint: "Ingresa el titulo",controller: _productController),
-        FielModalWidget(hint: "Ingresa el monto",controller: _priceController,isNumberKeryboard: true),
-        FielModalWidget(hint: "Ingresa el tipo",controller: _typeController),
-        _builBottonAdd(),
-      ],
+      ),
     );
   }
 }

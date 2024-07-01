@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gastosapp/models/gasto_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -8,10 +9,17 @@ import 'package:sqflite/sqflite.dart';
 class DBAdmin {
   Database? myDatabase;
 
-  Future<Database?> checkDatabase() async {
+  static final DBAdmin _instance = DBAdmin._();
+  DBAdmin._();
+
+  factory DBAdmin() {
+    return _instance;
+  }
+
+  Future<Database?> _checkDatabase() async {
     if (myDatabase == null) {
       //AÚN NO SE HA CREADO MYDATABASE
-      myDatabase = await initDatabase();
+      myDatabase = await _initDatabase();
     }
     print("aqui");
     return myDatabase;
@@ -19,7 +27,7 @@ class DBAdmin {
     // myDatabase ??= await initDatabase();
   }
 
-  Future<Database> initDatabase() async {
+  Future<Database> _initDatabase() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String pathDatabase = join(directory.path, "PagosDB.db");
     return await openDatabase(
@@ -37,27 +45,58 @@ class DBAdmin {
     );
   }
 
-  insertarGasto() async {
-    Database? db = await checkDatabase();
+  //INSERCIÓN DE DATOS
+  Future<int> insertarGasto(GastoModel gasto) async {
+    Database? db = await _checkDatabase();
     int res = await db!.insert(
       "GASTOS",
-      {
-        "title": "Compras en el mercado",
-        "price": 1200.50,
-        "datetime": "12/12/2024",
-        "type": "Alimentos",
-      },
+      gasto.ConvertirMap(),
+      // {
+      //   "title": "Compra de medias",
+      //   "price": 10.50,
+      //   "datetime": "12/12/2024",
+      //   "type": "Otros",
+      // },
     );
+    print(res);
+    return res;
+  }
+
+  //OBTENCIÓN DE DATOS
+  Future<List<GastoModel>> obtenerGastos() async {
+    Database? db = await _checkDatabase();
+    List<Map<String, dynamic>> data = await db!.query("GASTOS");
+
+    List<GastoModel> gastosList =
+        data.map((e) => GastoModel.fromDB(e)).toList();
+
+    // List<Map<String, dynamic>> data =
+    //     await db!.rawQuery("SELECT TITLE FROM GASTOS WHERE TYPE='Otros'");
+    // List<Map<String, dynamic>> data =
+    // await db!.query("GASTOS", where: "TYPE='Otros'");
+    // print(data);
+    // print(gastosList);
+    return gastosList;
+  }
+
+  //UPDATE GASTO
+  updGasto() async {
+    Database? db = await _checkDatabase();
+    int res = await db!.update(
+        "GASTOS",
+        {
+          "title": "ACTUALIZADO",
+          "price": 10.1,
+          "type": "Banco",
+        },
+        where: "id=2");
     print(res);
   }
 
-  obtenerGastos() async {
-    Database? db = await checkDatabase();
-    print(".....................");
-    // print(db);
-    print(".....................");
-
-    List<Map<String, dynamic>> data = await db!.query("GASTOS");
-    print(data);
+  //DELETE
+  delGasto() async {
+    Database? db = await _checkDatabase();
+    int res = await db!.delete("GASTOS", where: 'id=7');
+    print(res);
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gastosapp/db/db_admin.dart';
+import 'package:flutter_gastosapp/models/gasto_model.dart';
+import 'package:flutter_gastosapp/widgets/item_gasto_widget.dart';
 import 'package:flutter_gastosapp/widgets/register_modal.dart';
 
 class HomePage extends StatefulWidget {
@@ -8,6 +10,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<GastoModel> gastos = [];
+  GastoModel gasto1 = GastoModel(
+      title: "TITULO", datetime: "12/1/12", price: 12, type: "Alimentos");
   Widget busquedaWidget() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -38,35 +43,46 @@ class _HomePageState extends State<HomePage> {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          // width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(34),
-              topRight: Radius.circular(34),
-            ),
-          ),
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: RegisterModal(),
         );
       },
-    );
+    ).then((value) {
+      getDataFromDB();
+    });
   }
 
-  DBAdmin dbAdmin = DBAdmin();
+  // DBAdmin dbAdmin = DBAdmin();
+
+  Future<void> getDataFromDB() async {
+    gastos = await DBAdmin().obtenerGastos();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getDataFromDB();
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            dbAdmin.insertarGasto();
-            dbAdmin.obtenerGastos();
-          },
-        ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: () {
+        //     // dbAdmin.insertarGasto();
+        //     DBAdmin().obtenerGastos();
+        //     // dbAdmin.obtenerGastos();
+        //     // DBAdmin().updGasto();
+        //     // DBAdmin().delGasto();
+        //   },
+        // ),
         body: Stack(
           children: [
             Column(
@@ -74,8 +90,10 @@ class _HomePageState extends State<HomePage> {
               children: [
                 InkWell(
                   onTap: () {
-                    // showRegisterModal();
-                    dbAdmin.checkDatabase();
+                    showRegisterModal();
+                    // dbAdmin.checkDatabase();
+                    // dbAdmin.insertarGasto();
+                    // DBAdmin().insertarGasto();
                   },
                   child: Container(
                     color: Colors.black,
@@ -136,10 +154,22 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         busquedaWidget(),
-                        ListTile(
-                          title: Text("Compras en el super"),
-                          subtitle: Text("14/01/2025 23:21"),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: gastos.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return ItemGastoWidget(
+                                gasto: gastos[index],
+                              );
+                            },
+                          ),
                         ),
+
+                        // ListTile(
+                        //   title: Text("Compras en el super"),
+                        //   subtitle: Text("14/01/2025 23:21"),
+                        // ),
+                        // ItemGastoWidget(gasto: gasto1),
                       ],
                     ),
                   ),

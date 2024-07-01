@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 
-class FielModalWidget extends StatelessWidget {
+class FieldModalWidget extends StatelessWidget {
   String hint;
   TextEditingController controller;
   bool isNumberKeryboard;
-  
-  FielModalWidget({required this.hint,
-  required this.controller,
-  this.isNumberKeryboard =false});
+  bool isDatePicker;
+  VoidCallback? function;
+  FieldModalWidget({
+    required this.hint,
+    required this.controller,
+    this.isNumberKeryboard = false,
+    this.isDatePicker = false,
+    this.function,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextField(
-        keyboardType: isNumberKeryboard? TextInputType.number: TextInputType.text,
+        onTap: function,
+        readOnly: isDatePicker,
         controller: controller,
+        keyboardType:
+            isNumberKeryboard ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
