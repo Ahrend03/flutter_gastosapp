@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_gastosapp/models/gasto_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -94,9 +93,9 @@ class DBAdmin {
   }
 
   //DELETE
-  delGasto() async {
+  delGasto(int id) async {
     Database? db = await _checkDatabase();
-    int res = await db!.delete("GASTOS", where: 'id=7');
+    int res = await db!.delete("GASTOS", where: 'id=$id');
     print(res);
   }
 }

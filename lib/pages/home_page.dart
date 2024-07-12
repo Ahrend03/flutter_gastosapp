@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gastosapp/db/db_admin.dart';
+import 'package:flutter_gastosapp/generated/l10n.dart';
 import 'package:flutter_gastosapp/models/gasto_model.dart';
 import 'package:flutter_gastosapp/widgets/item_gasto_widget.dart';
 import 'package:flutter_gastosapp/widgets/register_modal.dart';
@@ -13,6 +14,12 @@ class _HomePageState extends State<HomePage> {
   List<GastoModel> gastos = [];
   GastoModel gasto1 = GastoModel(
       title: "TITULO", datetime: "12/1/12", price: 12, type: "Alimentos");
+
+  void deleteGasto(int id) async {
+    await DBAdmin().delGasto(id); // Asegúrate de tener este método implementado en DBAdmin
+    getDataFromDB(); // Refrescar la lista después de la eliminación
+  }
+
   Widget busquedaWidget() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -153,6 +160,7 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.black45,
                           ),
                         ),
+                        Text(S.of(context).helloAlquien("Antonio")),
                         busquedaWidget(),
                         Expanded(
                           child: ListView.builder(
@@ -160,6 +168,7 @@ class _HomePageState extends State<HomePage> {
                             itemBuilder: (BuildContext context, int index) {
                               return ItemGastoWidget(
                                 gasto: gastos[index],
+                                onDelete: () => deleteGasto(index)
                               );
                             },
                           ),

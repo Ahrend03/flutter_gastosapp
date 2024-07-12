@@ -135,8 +135,8 @@ class _RegisterModalState extends State<RegisterModal> {
                         isSelected: e["name"] == typeSelected,
                         tap: () {
                           typeSelected = e["name"];
+                          _typeController.text = typeSelected;
                           setState(() {});
-                          print(typeSelected);
                         },
                       ),
                     )
